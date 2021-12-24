@@ -1,3 +1,6 @@
+Gxx:项目需下载wkhtmltopdf配合使用
+---------------------------------------------
+
 #### This project is used to grab wiki from website of 'liaoxufeng',it is a tutorial：https://www.liaoxuefeng.com/
 
 #### It can be used to crawl all the wiki of him
