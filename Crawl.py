@@ -9,6 +9,8 @@ import pdfkit
 import xlwt
 
 
+WKHTMLTOPDF_PATH = 'E:/ProgramFiles(x86)/wkhtmltopdf/bin/wkhtmltopdf.exe'
+
 class Crawl:
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome'
@@ -65,7 +67,7 @@ class Crawl:
             for sheet in stylesheet:
                 if sheet['href'] not in self.css:
                     res = requests.get('https://static.liaoxuefeng.com' + sheet['href'], sheet['href'])
-                    if sheet['href'] == '/static/css/main.css?v=1.0-b1b83dc-2019-05-25T01:51:58Z':
+                    if sheet['href'] == '/static/css/main.css?v=1.0-5910024-2021-09-24-01-20':
                         sheet['href'] = '/static/css/main.css'
                     with open('.' + sheet['href'], 'w', encoding='utf-8') as f:
                         f.write(res.text)
@@ -88,10 +90,14 @@ class Crawl:
                     javascript['src'] = '.' + javascript['src']
                     self.js.append(javascript)
 
+        n = 1
         for link in menu.findAll('a', {'class': 'x-wiki-index-item'}):
             if link.attrs['href'] is not None:
                 absolute_link = 'https://www.liaoxuefeng.com' + link.attrs['href']
                 self.get_content(absolute_link)
+            n = n + 1
+            if n == 2:
+                break
         self.xls()
         self.template_format()
         self.save_to_pdf()
@@ -145,6 +151,7 @@ class Crawl:
             print("抓取完成，文章名为：{title}。".format(title=title))
 
     def save_to_pdf(self):
+        config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
         options = {
             'page-size': 'Letter',
             'margin-top': '0.75in',
@@ -160,6 +167,7 @@ class Crawl:
                 ('cookie-name2', 'cookie-value2'),
             ],
             'outline-depth': 10,
+            "enable-local-file-access": ""
         }
 
         toc = {
@@ -168,7 +176,7 @@ class Crawl:
         '''
         cover = 'cover.html'
         '''
-        pdfkit.from_file('templates.html', self.pdf_to_save_name, options=options)
+        pdfkit.from_file('templates.html', self.pdf_to_save_name, options=options, configuration=config)
 
         # pdfkit.from_file('file.html', options=options, toc=toc, cover=cover, cover_first=True)
 
@@ -207,8 +215,4 @@ class Crawl:
 
 
 if __name__ == '__main__':
-    # crawl = Crawl("https://www.liaoxuefeng.com/wiki/1016959663602400/1019418790329088", 'liaoxuefeng_python3.pdf')
-    # crawl = Crawl("https://www.liaoxuefeng.com/wiki/1252599548343744", 'liaoxuefeng_java12.pdf')
-    # crawl = Crawl('https://www.liaoxuefeng.com/wiki/1022910821149312', 'liaoxuefeng_javascript.pdf')
-    crawl = Crawl('https://www.liaoxuefeng.com/wiki/1177760294764384', 'liaoxuefeng_sql.pdf')
-    # crawl=Crawl('https://www.liaoxuefeng.com/wiki/896043488029600','liaoxuefeng_git.pdf')
+    crawl = Crawl('https://www.liaoxuefeng.com/wiki/1252599548343744/1280507291631649', './books/liaoxuefeng_java.pdf')
